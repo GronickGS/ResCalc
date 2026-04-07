@@ -1,57 +1,106 @@
 import 'package:flutter/material.dart';
 
-// Color value maps
-final Map<String, int> colorValuesBanda1 = {
-  'Negro': 0,
-  'Marrón': 1,
-  'Rojo': 2,
-  'Naranja': 3,
-  'Amarillo': 4,
-  'Verde': 5,
-  'Azul': 6,
-  'Violeta': 7,
-  'Gris': 8,
-  'Blanco': 9,
-};
+// Constantes centralizadas
+class ResistorConstants {
+  static const double defaultTolerance3Band =
+      20.0; // 3 bandas = 20% por defecto
 
-final Map<String, int> colorValuesBanda2 = {
-  'Negro': 0,
-  'Marrón': 1,
-  'Rojo': 2,
-  'Naranja': 3,
-  'Amarillo': 4,
-  'Verde': 5,
-  'Azul': 6,
-  'Violeta': 7,
-  'Gris': 8,
-  'Blanco': 9,
-};
+  static const Map<String, int> digitValues = {
+    'Negro': 0,
+    'Marrón': 1,
+    'Rojo': 2,
+    'Naranja': 3,
+    'Amarillo': 4,
+    'Verde': 5,
+    'Azul': 6,
+    'Violeta': 7,
+    'Gris': 8,
+    'Blanco': 9,
+  };
 
-final Map<String, int> multiplierValues = {
-  'Negro': 1,
-  'Marrón': 10,
-  'Rojo': 100,
-  'Naranja': 1000,
-  'Amarillo': 10000,
-  'Verde': 100000,
-  'Azul': 1000000,
-  'Violeta': 10000000,
-  'Gris': 100000000,
-  'Blanco': 1000000000,
-  'Oro': 10,
-  'Plata': 100,
-};
+  static const Map<String, double> multiplierValues = {
+    'Negro': 1,
+    'Marrón': 10,
+    'Rojo': 100,
+    'Naranja': 1000,
+    'Amarillo': 10000,
+    'Verde': 100000,
+    'Azul': 1000000,
+    'Violeta': 10000000,
+    'Gris': 100000000,
+    'Blanco': 1000000000,
+    'Oro': 0.1,
+    'Plata': 0.01,
+  };
 
-final Map<String, double> toleranceValues = {
-  'Marrón': 1.0,
-  'Rojo': 2.0,
-  'Verde': 0.5,
-  'Azul': 0.25,
-  'Violeta': 0.1,
-  'Gris': 0.05,
-  'Oro': 5.0,
-  'Plata': 10.0,
-};
+  static Color getColorFromValue(dynamic value, {required bool isMultiplier}) {
+    if (isMultiplier) {
+      switch (value) {
+        case 0.1:
+          return const Color(0xFFFFD700); // Oro
+        case 0.01:
+          return const Color(0xFFC0C0C0); // Plata
+        case 1:
+          return Colors.black;
+        case 10:
+          return const Color(0xFF795548); // Marrón
+        case 100:
+          return Colors.red;
+        case 1000:
+          return Colors.orange;
+        case 10000:
+          return Colors.yellow;
+        case 100000:
+          return Colors.green;
+        case 1000000:
+          return Colors.blue;
+        case 10000000:
+          return const Color(0xFF9C27B0); // Violeta
+        case 100000000:
+          return Colors.grey;
+        case 1000000000:
+          return Colors.white;
+        default:
+          return Colors.black;
+      }
+    } else {
+      switch (value) {
+        case 0:
+          return Colors.black;
+        case 1:
+          return const Color(0xFF795548); // Marrón
+        case 2:
+          return Colors.red;
+        case 3:
+          return Colors.orange;
+        case 4:
+          return Colors.yellow;
+        case 5:
+          return Colors.green;
+        case 6:
+          return Colors.blue;
+        case 7:
+          return const Color(0xFF9C27B0); // Violeta
+        case 8:
+          return Colors.grey;
+        case 9:
+          return Colors.white;
+        default:
+          return Colors.black;
+      }
+    }
+  }
+
+  static String formatResistance(double value) {
+    if (value >= 1_000_000) {
+      return '${(value / 1_000_000).toStringAsFixed(2)} MΩ';
+    } else if (value >= 1_000) {
+      return '${(value / 1_000).toStringAsFixed(2)} kΩ';
+    } else {
+      return '${value.toStringAsFixed(2)} Ω';
+    }
+  }
+}
 
 class BandaTresPage extends StatefulWidget {
   const BandaTresPage({super.key});
@@ -65,201 +114,114 @@ class BandaTresPageState extends State<BandaTresPage> {
   String valorBanda2 = 'Negro';
   String valorBanda3 = 'Rojo';
 
+  // Tolerancia fija para 3 bandas
+  static const double toleranciaFija = ResistorConstants.defaultTolerance3Band;
+
   @override
   Widget build(BuildContext context) {
-    int banda1 = colorValuesBanda1[valorBanda1] ?? 0;
-    int banda2 = colorValuesBanda2[valorBanda2] ?? 0;
-    int multiplicador = multiplierValues[valorBanda3] ?? 0;
-    double tolerancia = toleranceValues[valorBanda3] ?? 5.0;
+    int banda1 = ResistorConstants.digitValues[valorBanda1] ?? 0;
+    int banda2 = ResistorConstants.digitValues[valorBanda2] ?? 0;
+    double multiplicador = ResistorConstants.multiplierValues[valorBanda3] ?? 1;
 
-    int valorNominal = int.parse('$banda1$banda2', radix: 10) * multiplicador;
-    double valorMinimo = valorNominal * (1 - tolerancia / 100);
-    double valorMaximo = valorNominal * (1 + tolerancia / 100);
+    double valorNominal = double.parse('$banda1$banda2') * multiplicador;
+    double valorMinimo = valorNominal * (1 - toleranciaFija / 100);
+    double valorMaximo = valorNominal * (1 + toleranciaFija / 100);
 
     return Scaffold(
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildResistorDisplay(tolerancia),
-            const SizedBox(height: 20),
-            _buildBandSelectors(),
-            const SizedBox(height: 20),
-            _buildResultDisplay(valorNominal, valorMinimo, valorMaximo, tolerancia),
-            const SizedBox(height: 20),
-            _buildInfoPanel(),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildResistorDisplay(double tolerancia) {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      color: Colors.grey[900],
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Center(
+      backgroundColor: Colors.transparent,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
           child: Column(
-          children: [
-            const Text(
-              'REPRESENTACIÓN DEL RESISTOR',
-              style: TextStyle(
-                color: Colors.white70,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1.2,
-              ),
-            ),
-            const SizedBox(height: 10),
-            _buildResistenciaWidget(
-              colorBanda1: getColorFromValue(
-                colorValuesBanda1[valorBanda1],
-                'banda1',
-              ),
-              colorBanda2: getColorFromValue(
-                colorValuesBanda2[valorBanda2],
-                'banda2',
-              ),
-              colorBanda3: getColorFromValue(
-                multiplierValues[valorBanda3],
-                'banda3',
-              ),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              'Tolerancia: ±$tolerancia%',
-              style: const TextStyle(color: Colors.white70, fontSize: 14),
-            ),
-          ],
-        ),
-        )
-      ),
-    );
-  }
-
-  Widget _buildResistenciaWidget({
-    required Color colorBanda1,
-    required Color colorBanda2,
-    required Color colorBanda3,
-  }) {
-    return CustomPaint(
-      size: const Size(250, 120),
-      painter: _ResistenciaPainter(
-        colorBanda1: colorBanda1,
-        colorBanda2: colorBanda2,
-        colorBanda3: colorBanda3,
-      ),
-    );
-  }
-
-  Widget _buildBandSelectors() {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      color: Colors.grey[900],
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Center(
-          child: Column(
-          children: [
-            const Text(
-              'SELECCIONA LOS COLORES DE LAS BANDAS',
-              style: TextStyle(
-                color: Colors.white70,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1.2,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Wrap(
-              spacing: 10,
-              runSpacing: 15,
-              children: [
-                _buildBandSelector('1ª Banda', colorValuesBanda1, (value) {
-                  setState(() => valorBanda1 = value);
-                }, valorBanda1, Icons.looks_one),
-                _buildBandSelector('2ª Banda', colorValuesBanda2, (value) {
-                  setState(() => valorBanda2 = value);
-                }, valorBanda2, Icons.looks_two),
-                _buildBandSelector('Multiplicador', multiplierValues, (value) {
-                  setState(() => valorBanda3 = value);
-                }, valorBanda3, Icons.close),
-              ],
-            ),
-          ],
-        ),
-        )
-      ),
-    );
-  }
-
-  Widget _buildBandSelector(
-    String title,
-    Map<String, int> values,
-    ValueChanged<String> onChanged,
-    String currentValue,
-    IconData icon,
-  ) {
-    return Container(
-      width: 150,
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: const Color.fromARGB(255, 43, 43, 43),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, color: Colors.white70, size: 16),
-              const SizedBox(width: 5),
-              Text(
-                title,
-                style: const TextStyle(color: Colors.white70, fontSize: 14, fontWeight: FontWeight.bold),
-              ),
+              // Header con gradiente sutil
+              _buildHeader(),
+              const SizedBox(height: 24),
+
+              // Visualización del resistor
+              _buildResistorDisplay(),
+              const SizedBox(height: 24),
+
+              // Selectores estilo iOS
+              _buildIOSStyleBandSelectors(),
+              const SizedBox(height: 24),
+
+              // Resultados
+              _buildResultDisplay(valorNominal, valorMinimo, valorMaximo),
+              const SizedBox(height: 20),
+
+              // Info panel minimalista
+              _buildInfoPanel(),
             ],
           ),
-          const SizedBox(height: 5),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            decoration: BoxDecoration(
-              color: getColorFromValue(values[currentValue], title.contains('Multiplicador') ? 'banda3' : 'banda'),
-              borderRadius: BorderRadius.circular(8),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeader() {
+    return Column(
+      children: [
+        const SizedBox(height: 8),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Text(
+            'Tolerancia fija: ±${toleranciaFija.toStringAsFixed(0)}%',
+            style: const TextStyle(
+              fontSize: 13,
+              color: Colors.white70,
+              fontWeight: FontWeight.w500,
             ),
-            child: DropdownButton<String>(
-              isExpanded: true,
-              value: currentValue,
-              onChanged: (String? value) => onChanged(value!),
-              dropdownColor: Colors.grey[900],
-              underline: const SizedBox(),
-              icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
-              style: const TextStyle(color: Colors.white, fontSize: 14),
-              items: values.keys.map((String key) {
-                return DropdownMenuItem<String>(
-                  value: key,
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 10,
-                        height: 10,
-                        decoration: BoxDecoration(
-                          color: getColorFromValue(values[key], title.contains('Multiplicador') ? 'banda3' : 'banda'),
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white30),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(key, style: const TextStyle(fontSize: 12)),
-                    ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildResistorDisplay() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: Colors.white.withOpacity(0.1)),
+      ),
+      padding: const EdgeInsets.all(10),
+      child: Column(
+        children: [
+          const Text(
+            'REPRESENTACIÓN',
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: Colors.white54,
+              letterSpacing: 1.5,
+            ),
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            height: 100,
+            child: Center(
+              child: CustomPaint(
+                size: const Size(280, 120),
+                painter: _ResistenciaPainter3Bandas(
+                  colorBanda1: ResistorConstants.getColorFromValue(
+                    ResistorConstants.digitValues[valorBanda1],
+                    isMultiplier: false,
                   ),
-                );
-              }).toList(),
+                  colorBanda2: ResistorConstants.getColorFromValue(
+                    ResistorConstants.digitValues[valorBanda2],
+                    isMultiplier: false,
+                  ),
+                  colorBanda3: ResistorConstants.getColorFromValue(
+                    ResistorConstants.multiplierValues[valorBanda3],
+                    isMultiplier: true,
+                  ),
+                ),
+              ),
             ),
           ),
         ],
@@ -267,68 +229,226 @@ class BandaTresPageState extends State<BandaTresPage> {
     );
   }
 
-  Widget _buildResultDisplay(int valorNominal, double valorMinimo, double valorMaximo, double tolerancia) {
-    String formattedValue = _formatResistanceValue(valorNominal);
-    
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      color: const Color.fromARGB(255, 43, 43, 43),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            const Text(
-              'VALOR DE LA RESISTENCIA',
-              style: TextStyle(
-                color: Colors.white70,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1.2,
+  Widget _buildIOSStyleBandSelectors() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: Colors.white.withOpacity(0.1)),
+      ),
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        children: [
+          const Text(
+            'CONFIGURACIÓN',
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: Colors.white54,
+              letterSpacing: 1.5,
+            ),
+          ),
+          const SizedBox(height: 20),
+          Row(
+            children: [
+              Expanded(
+                child: _buildIOSSelector(
+                  title: '1ª Banda',
+                  value: valorBanda1,
+                  values: ResistorConstants.digitValues.keys.toList(),
+                  onChanged: (value) => setState(() => valorBanda1 = value),
+                  color: ResistorConstants.getColorFromValue(
+                    ResistorConstants.digitValues[valorBanda1],
+                    isMultiplier: false,
+                  ),
+                ),
               ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              formattedValue,
-              style: const TextStyle(
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-                letterSpacing: 1.5,
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildIOSSelector(
+                  title: '2ª Banda',
+                  value: valorBanda2,
+                  values: ResistorConstants.digitValues.keys.toList(),
+                  onChanged: (value) => setState(() => valorBanda2 = value),
+                  color: ResistorConstants.getColorFromValue(
+                    ResistorConstants.digitValues[valorBanda2],
+                    isMultiplier: false,
+                  ),
+                ),
               ),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _buildToleranceBox('Mínimo', '${_formatResistanceValue(valorMinimo.toInt())}'),
-                _buildToleranceBox('Máximo', '${_formatResistanceValue(valorMaximo.toInt())}'),
-                _buildToleranceBox('Tolerancia', '±$tolerancia%'),
-              ],
-            ),
-          ],
-        ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildIOSSelector(
+                  title: 'Multiplicador',
+                  value: valorBanda3,
+                  values: ResistorConstants.multiplierValues.keys.toList(),
+                  onChanged: (value) => setState(() => valorBanda3 = value),
+                  color: ResistorConstants.getColorFromValue(
+                    ResistorConstants.multiplierValues[valorBanda3],
+                    isMultiplier: true,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildToleranceBox(String title, String value) {
+  Widget _buildIOSSelector({
+    required String title,
+    required String value,
+    required List<String> values,
+    required ValueChanged<String> onChanged,
+    required Color color,
+  }) {
     return Column(
       children: [
         Text(
           title,
-          style: const TextStyle(color: Colors.white70, fontSize: 12),
+          style: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: Colors.white70,
+          ),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 8),
+        Container(
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.3),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: color.withOpacity(0.5)),
+          ),
+          child: DropdownButton<String>(
+            value: value,
+            onChanged: (v) => onChanged(v!),
+            dropdownColor: Colors.grey[850],
+            underline: const SizedBox(),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            isExpanded: true,
+            icon: Icon(Icons.arrow_drop_down, color: Colors.white70, size: 20),
+            style: const TextStyle(color: Colors.white, fontSize: 13),
+            items: values.map((key) {
+              return DropdownMenuItem(
+                value: key,
+                child: Row(
+                  children: [
+                    Container(
+                      width: 12,
+                      height: 12,
+                      decoration: BoxDecoration(
+                        color: ResistorConstants.getColorFromValue(
+                          ResistorConstants.digitValues.containsKey(key)
+                              ? ResistorConstants.digitValues[key]
+                              : ResistorConstants.multiplierValues[key],
+                          isMultiplier: !ResistorConstants.digitValues
+                              .containsKey(key),
+                        ),
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Flexible(
+                      child: Text(
+                        key,
+                        style: const TextStyle(fontSize: 12),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }).toList(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildResultDisplay(double nominal, double min, double max) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Colors.blue[600]!, Colors.purple[600]!],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.blue.withOpacity(0.3),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        children: [
+          const Text(
+            'VALOR CALCULADO',
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: Colors.white70,
+              letterSpacing: 1.5,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            ResistorConstants.formatResistance(nominal),
+            style: const TextStyle(
+              fontSize: 34,
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
+              letterSpacing: -0.5,
+            ),
+          ),
+          const SizedBox(height: 20),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _buildResultChip(
+                'Mínimo',
+                ResistorConstants.formatResistance(min),
+              ),
+              _buildResultChip(
+                'Máximo',
+                ResistorConstants.formatResistance(max),
+              ),
+              _buildResultChip(
+                'Tolerancia',
+                '±${toleranciaFija.toStringAsFixed(0)}%',
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildResultChip(String label, String value) {
+    return Column(
+      children: [
+        Text(
+          label,
+          style: const TextStyle(fontSize: 11, color: Colors.white70),
+        ),
+        const SizedBox(height: 6),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
-            color: const Color.fromARGB(255, 30, 30, 30),
-            borderRadius: BorderRadius.circular(8),
+            color: Colors.white.withOpacity(0.2),
+            borderRadius: BorderRadius.circular(20),
           ),
           child: Text(
             value,
-            style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: Colors.white,
+            ),
           ),
         ),
       ],
@@ -336,125 +456,50 @@ class BandaTresPageState extends State<BandaTresPage> {
   }
 
   Widget _buildInfoPanel() {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      color: Colors.grey[900],
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'INFORMACIÓN SOBRE RESISTENCIAS DE 3 BANDAS',
-              style: TextStyle(
-                color: Colors.white70,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1.2,
-              ),
-            ),
-            const SizedBox(height: 16),
-            _buildInfoItem('Código de colores', 'Las resistencias de 3 bandas usan un código de colores para indicar su valor. Las primeras dos bandas son dígitos y la tercera es el multiplicador. No incluyen banda de tolerancia, por lo que generalmente tienen una tolerancia del 20%.'),
-            _buildInfoItem('Limitaciones', 'A diferencia de las resistencias de 4 bandas, las de 3 bandas no especifican tolerancia, lo que las hace menos precisas para aplicaciones críticas.'),
-            _buildInfoItem('Uso común', 'Estas resistencias se utilizan comúnmente en circuitos donde la precisión no es crítica, como en fuentes de alimentación básicas o circuitos de polarización.'),
-          ],
-        ),
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white.withOpacity(0.1)),
       ),
-    );
-  }
-
-  Widget _buildInfoItem(String title, String content) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12.0),
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+          Row(
+            children: [
+              Icon(Icons.info_outline, size: 16, color: Colors.white54),
+              const SizedBox(width: 8),
+              const Text(
+                'INFORMACIÓN',
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white54,
+                  letterSpacing: 1,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 4),
-          Text(
-            content,
-            style: const TextStyle(color: Colors.white70, fontSize: 12),
+          const SizedBox(height: 12),
+          const Text(
+            'Las resistencias de 3 bandas tienen una tolerancia fija del 20%. '
+            'Las primeras dos bandas representan dígitos y la tercera es el multiplicador.',
+            style: TextStyle(fontSize: 12, color: Colors.white70, height: 1.4),
           ),
         ],
       ),
     );
   }
-
-  String _formatResistanceValue(int value) {
-    if (value >= 1000000) {
-      return '${(value / 1000000).toStringAsFixed(2)} MΩ';
-    } else if (value >= 1000) {
-      return '${(value / 1000).toStringAsFixed(2)} kΩ';
-    } else {
-      return '$value Ω';
-    }
-  }
-
-  Color getColorFromValue(int? value, String bandType) {
-    if (bandType == 'banda3') {
-      switch (value) {
-        case 1:
-          return Colors.black;
-        case 10:
-          return const Color(0xFF795548);
-        case 100:
-          return Colors.red;
-        case 1000:
-          return Colors.orange;
-        case 10000:
-          return Colors.yellow;
-        case 100000:
-          return Colors.green;
-        case 1000000:
-          return Colors.blue;
-        case 10000000:
-          return const Color(0xFF9C27B0);
-        case 100000000:
-          return Colors.grey;
-        case 1000000000:
-          return Colors.white;
-        default:
-          return Colors.black;
-      }
-    } else {
-      switch (value) {
-        case 0:
-          return Colors.black;
-        case 1:
-          return const Color(0xFF795548);
-        case 2:
-          return Colors.red;
-        case 3:
-          return Colors.orange;
-        case 4:
-          return Colors.yellow;
-        case 5:
-          return Colors.green;
-        case 6:
-          return Colors.blue;
-        case 7:
-          return const Color(0xFF9C27B0);
-        case 8:
-          return Colors.grey;
-        case 9:
-          return Colors.white;
-        default:
-          return Colors.black;
-      }
-    }
-  }
 }
 
-class _ResistenciaPainter extends CustomPainter {
+// Painter personalizado para 3 bandas
+class _ResistenciaPainter3Bandas extends CustomPainter {
   final Color colorBanda1;
   final Color colorBanda2;
   final Color colorBanda3;
 
-  _ResistenciaPainter({
+  const _ResistenciaPainter3Bandas({
     required this.colorBanda1,
     required this.colorBanda2,
     required this.colorBanda3,
@@ -462,71 +507,52 @@ class _ResistenciaPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..style = PaintingStyle.fill
-      ..strokeWidth = 2;
+    final paint = Paint()..style = PaintingStyle.fill;
 
-    // Draw leads
-    paint.color = Colors.grey;
-    canvas.drawRect(
-      Rect.fromLTWH(0, size.height * 0.4, size.width * 0.15, size.height * 0.2),
-      paint,
-    );
-    canvas.drawRect(
+    // Cuerpo del resistor (beige claro estilo real)
+    paint.color = const Color(0xFFE8D5B5);
+    final bodyRect = RRect.fromRectAndRadius(
       Rect.fromLTWH(
-        size.width * 0.85,
-        size.height * 0.4,
         size.width * 0.15,
         size.height * 0.2,
+        size.width * 0.7,
+        size.height * 0.6,
       ),
-      paint,
+      const Radius.circular(8),
     );
+    canvas.drawRRect(bodyRect, paint);
 
-    // Draw resistor body
-    paint.color = Colors.brown[300]!;
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(
-        Rect.fromLTWH(
-          size.width * 0.15,
-          size.height * 0.2,
-          size.width * 0.7,
-          size.height * 0.6,
-        ),
-        const Radius.circular(10),
-      ),
-      paint,
-    );
+    // Sombras para efecto 3D
+    paint.color = Colors.black.withOpacity(0.1);
+    canvas.drawRRect(bodyRect.shift(const Offset(2, 2)), paint);
 
-    // Draw bands
-    final bandWidth = size.width * 0.05;
-    final bandHeight = size.height * 0.6;
-    final startX = size.width * 0.25;
+    // Bandas
+    final bandWidth = size.width * 0.07;
+    final bandHeight = size.height * 0.55;
+    double startX = size.width * 0.28;
 
-    // Band 1
     paint.color = colorBanda1;
     canvas.drawRect(
-      Rect.fromLTWH(startX, size.height * 0.2, bandWidth, bandHeight),
+      Rect.fromLTWH(startX, size.height * 0.225, bandWidth, bandHeight),
       paint,
     );
 
-    // Band 2
     paint.color = colorBanda2;
     canvas.drawRect(
       Rect.fromLTWH(
-        startX + bandWidth * 2,
-        size.height * 0.2,
+        startX + bandWidth * 1.8,
+        size.height * 0.225,
         bandWidth,
         bandHeight,
       ),
       paint,
     );
 
-    // Band 3 (multiplier)
     paint.color = colorBanda3;
     canvas.drawRect(
       Rect.fromLTWH(
-        startX + bandWidth * 4,
-        size.height * 0.2,
+        startX + bandWidth * 3.6,
+        size.height * 0.225,
         bandWidth,
         bandHeight,
       ),
