@@ -1,427 +1,44 @@
 import 'package:flutter/material.dart';
 
-// Color value maps
-final Map<String, int> colorValuesBanda1 = {
-  'Negro': 0,
-  'Marrón': 1,
-  'Rojo': 2,
-  'Naranja': 3,
-  'Amarillo': 4,
-  'Verde': 5,
-  'Azul': 6,
-  'Violeta': 7,
-  'Gris': 8,
-  'Blanco': 9,
-};
+// Constantes centralizadas para 4 bandas
+class Resistor4BandConstants {
+  static const double defaultTolerance4Band = 20.0;
 
-final Map<String, int> colorValuesBanda2 = {
-  'Negro': 0,
-  'Marrón': 1,
-  'Rojo': 2,
-  'Naranja': 3,
-  'Amarillo': 4,
-  'Verde': 5,
-  'Azul': 6,
-  'Violeta': 7,
-  'Gris': 8,
-  'Blanco': 9,
-};
+  static const Map<String, int> digitValues = {
+    'Negro': 0,
+    'Marrón': 1,
+    'Rojo': 2,
+    'Naranja': 3,
+    'Amarillo': 4,
+    'Verde': 5,
+    'Azul': 6,
+    'Violeta': 7,
+    'Gris': 8,
+    'Blanco': 9,
+  };
 
-final Map<String, int> colorValuesBanda3 = {
-  'Negro': 0,
-  'Marrón': 1,
-  'Rojo': 2,
-  'Naranja': 3,
-  'Amarillo': 4,
-  'Verde': 5,
-  'Azul': 6,
-  'Violeta': 7,
-  'Gris': 8,
-  'Blanco': 9,
-};
+  static const Map<String, double> multiplierValues = {
+    'Negro': 1,
+    'Marrón': 10,
+    'Rojo': 100,
+    'Naranja': 1000,
+    'Amarillo': 10000,
+    'Verde': 100000,
+    'Azul': 1000000,
+    'Violeta': 10000000,
+    'Gris': 100000000,
+    'Blanco': 1000000000,
+    'Oro': 0.1,
+    'Plata': 0.01,
+  };
 
-final Map<String, int> multiplierValues = {
-  'Negro': 1,
-  'Marrón': 10,
-  'Rojo': 100,
-  'Naranja': 1000,
-  'Amarillo': 10000,
-  'Verde': 100000,
-  'Azul': 1000000,
-  'Violeta': 10000000,
-  'Gris': 100000000,
-  'Blanco': 1000000000,
-  'Oro': 10,
-  'Plata': 100,
-};
-
-final Map<String, double> toleranceValues = {
-  'Marrón': 1.0,
-  'Rojo': 2.0,
-  'Verde': 0.5,
-  'Azul': 0.25,
-  'Violeta': 0.1,
-  'Gris': 0.05,
-  'Oro': 5.0,
-  'Plata': 10.0,
-};
-
-class BandaCuatroPage extends StatefulWidget {
-  const BandaCuatroPage({super.key});
-
-  @override
-  BandaCuatroPageState createState() => BandaCuatroPageState();
-}
-
-class BandaCuatroPageState extends State<BandaCuatroPage> {
-  String valorBanda1 = 'Marrón';
-  String valorBanda2 = 'Negro';
-  String valorBanda3 = 'Rojo';
-  String valorBanda4 = 'Oro';
-
-  @override
-  Widget build(BuildContext context) {
-    int banda1 = colorValuesBanda1[valorBanda1] ?? 0;
-    int banda2 = colorValuesBanda2[valorBanda2] ?? 0;
-    int banda3 = colorValuesBanda3[valorBanda3] ?? 0;
-    int multiplicador = multiplierValues[valorBanda4] ?? 0;
-    double tolerancia = toleranceValues[valorBanda4] ?? 5.0;
-
-    int valorNominal = int.parse('$banda1$banda2$banda3', radix: 10) * multiplicador;
-    double valorMinimo = valorNominal * (1 - tolerancia / 100);
-    double valorMaximo = valorNominal * (1 + tolerancia / 100);
-
-    return Scaffold(
-      
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildResistorDisplay(tolerancia),
-            const SizedBox(height: 20),
-            _buildBandSelectors(),
-            const SizedBox(height: 20),
-            _buildResultDisplay(valorNominal, valorMinimo, valorMaximo, tolerancia),
-            const SizedBox(height: 20),
-            _buildInfoPanel(),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildResistorDisplay(double tolerancia) {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      color: Colors.grey[900],
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Center(
-        child: Column(
-          children: [
-            const Text(
-              'REPRESENTACIÓN DEL RESISTOR',
-              style: TextStyle(
-                color: Colors.white70,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1.2,
-              ),
-            ),
-            const SizedBox(height: 10),
-            _buildResistenciaWidget(
-              colorBanda1: getColorFromValue(
-                colorValuesBanda1[valorBanda1],
-                'banda1',
-              ),
-              colorBanda2: getColorFromValue(
-                colorValuesBanda2[valorBanda2],
-                'banda2',
-              ),
-              colorBanda3: getColorFromValue(
-                colorValuesBanda3[valorBanda3],
-                'banda3',
-              ),
-              colorBanda4: getColorFromValue(
-                multiplierValues[valorBanda4],
-                'banda4',
-              ),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              'Tolerancia: ±$tolerancia%',
-              style: const TextStyle(color: Colors.white70, fontSize: 14),
-            ),
-          ],
-        ),
-      ),
-     ) );
-  }
-
-  Widget _buildResistenciaWidget({
-    required Color colorBanda1,
-    required Color colorBanda2,
-    required Color colorBanda3,
-    required Color colorBanda4,
-  }) {
-    return CustomPaint(
-      size: const Size(250, 120),
-      painter: _ResistenciaPainter(
-        colorBanda1: colorBanda1,
-        colorBanda2: colorBanda2,
-        colorBanda3: colorBanda3,
-        colorBanda4: colorBanda4,
-      ),
-    );
-  }
-
-  Widget _buildBandSelectors() {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      color: Colors.grey[900],
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Center(
-          child: Column(
-          children: [
-            const Text(
-              'SELECCIONA LOS COLORES DE LAS BANDAS',
-              style: TextStyle(
-                color: Colors.white70,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1.2,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Wrap(
-              spacing: 10,
-              runSpacing: 15,
-              children: [
-                _buildBandSelector('1ª Banda', colorValuesBanda1, (value) {
-                  setState(() => valorBanda1 = value);
-                }, valorBanda1, Icons.looks_one),
-                _buildBandSelector('2ª Banda', colorValuesBanda2, (value) {
-                  setState(() => valorBanda2 = value);
-                }, valorBanda2, Icons.looks_two),
-                _buildBandSelector('3ª Banda', colorValuesBanda3, (value) {
-                  setState(() => valorBanda3 = value);
-                }, valorBanda3, Icons.looks_3),
-                _buildBandSelector('Multiplicador', multiplierValues, (value) {
-                  setState(() => valorBanda4 = value);
-                }, valorBanda4, Icons.close),
-              ],
-            ),
-          ],
-        ),
-        )
-      ),
-    );
-  }
-
-  Widget _buildBandSelector(
-    String title,
-    Map<String, int> values,
-    ValueChanged<String> onChanged,
-    String currentValue,
-    IconData icon,
-  ) {
-    return Container(
-      width: 150,
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: const Color.fromARGB(255, 43, 43, 43),
-        borderRadius: BorderRadius.circular(12),
-        
-      ),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, color: Colors.white70, size: 16),
-              const SizedBox(width: 5),
-              Text(
-                title,
-                style: const TextStyle(color: Colors.white70, fontSize: 14, fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
-          const SizedBox(height: 5),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            decoration: BoxDecoration(
-              color: getColorFromValue(values[currentValue], title.contains('Multiplicador') ? 'banda4' : 'banda'),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: DropdownButton<String>(
-              isExpanded: true,
-              value: currentValue,
-              onChanged: (String? value) => onChanged(value!),
-              dropdownColor: Colors.grey[900],
-              underline: const SizedBox(),
-              icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
-              style: const TextStyle(color: Colors.white, fontSize: 14),
-              items: values.keys.map((String key) {
-                return DropdownMenuItem<String>(
-                  value: key,
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 10,
-                        height: 10,
-                        decoration: BoxDecoration(
-                          color: getColorFromValue(values[key], title.contains('Multiplicador') ? 'banda4' : 'banda'),
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white30),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(key, style: const TextStyle(fontSize: 12)),
-                    ],
-                  ),
-                );
-              }).toList(),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildResultDisplay(int valorNominal, double valorMinimo, double valorMaximo, double tolerancia) {
-    String formattedValue = _formatResistanceValue(valorNominal);
-    
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      color: const Color.fromARGB(255, 43, 43, 43),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            const Text(
-              'VALOR DE LA RESISTENCIA',
-              style: TextStyle(
-                color: Colors.white70,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1.2,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              formattedValue,
-              style: const TextStyle(
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-                letterSpacing: 1.5,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _buildToleranceBox('Mínimo', '${_formatResistanceValue(valorMinimo.toInt())}'),
-                _buildToleranceBox('Máximo', '${_formatResistanceValue(valorMaximo.toInt())}'),
-                _buildToleranceBox('Tolerancia', '±$tolerancia%'),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildToleranceBox(String title, String value) {
-    return Column(
-      children: [
-        Text(
-          title,
-          style: const TextStyle(color: Colors.white70, fontSize: 12),
-        ),
-        const SizedBox(height: 4),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          decoration: BoxDecoration(
-            color: Color.fromARGB(255, 30, 30, 30),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Text(
-            value,
-            style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildInfoPanel() {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      color: Colors.grey[900],
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'INFORMACIÓN SOBRE RESISTENCIAS',
-              style: TextStyle(
-                color: Colors.white70,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1.2,
-              ),
-            ),
-            const SizedBox(height: 16),
-            _buildInfoItem('Código de colores', 'Las resistencias usan un código de colores para indicar su valor. Las primeras dos bandas son dígitos, la tercera es el multiplicador y la cuarta es la tolerancia.'),
-            _buildInfoItem('Tolerancia', 'Indica el margen de error del valor nominal de la resistencia. Una tolerancia menor significa una resistencia más precisa.'),
-            _buildInfoItem('Ley de Ohm', 'V = I × R, donde V es voltaje, I es corriente y R es resistencia. Esta ley fundamental relaciona estos tres conceptos en circuitos eléctricos.'),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildInfoItem(String title, String content) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            content,
-            style: const TextStyle(color: Colors.white70, fontSize: 12),
-          ),
-        ],
-      ),
-    );
-  }
-
-  String _formatResistanceValue(int value) {
-    if (value >= 1000000) {
-      return '${(value / 1000000).toStringAsFixed(2)} MΩ';
-    } else if (value >= 1000) {
-      return '${(value / 1000).toStringAsFixed(2)} kΩ';
-    } else {
-      return '$value Ω';
-    }
-  }
-
-  Color getColorFromValue(int? value, String bandType) {
-    if (bandType == 'banda4') {
+  static Color getColorFromValue(dynamic value, {required bool isMultiplier}) {
+    if (isMultiplier) {
       switch (value) {
+        case 0.1:
+          return const Color(0xFFFFD700);
+        case 0.01:
+          return const Color(0xFFC0C0C0);
         case 1:
           return Colors.black;
         case 10:
@@ -472,15 +89,412 @@ class BandaCuatroPageState extends State<BandaCuatroPage> {
       }
     }
   }
+
+  static String formatResistance(double value) {
+    if (value >= 1_000_000) {
+      return '${(value / 1_000_000).toStringAsFixed(2)} MΩ';
+    } else if (value >= 1_000) {
+      return '${(value / 1_000).toStringAsFixed(2)} kΩ';
+    } else {
+      return '${value.toStringAsFixed(2)} Ω';
+    }
+  }
 }
 
-class _ResistenciaPainter extends CustomPainter {
+class BandaCuatroPage extends StatefulWidget {
+  const BandaCuatroPage({super.key});
+
+  @override
+  BandaCuatroPageState createState() => BandaCuatroPageState();
+}
+
+class BandaCuatroPageState extends State<BandaCuatroPage> {
+  String valorBanda1 = 'Marrón';
+  String valorBanda2 = 'Negro';
+  String valorBanda3 = 'Rojo';
+  String valorBanda4 = 'Oro';
+
+  static const double toleranciaFija = Resistor4BandConstants.defaultTolerance4Band;
+
+  @override
+  Widget build(BuildContext context) {
+    int banda1 = Resistor4BandConstants.digitValues[valorBanda1] ?? 0;
+    int banda2 = Resistor4BandConstants.digitValues[valorBanda2] ?? 0;
+    int banda3 = Resistor4BandConstants.digitValues[valorBanda3] ?? 0;
+    double multiplicador = Resistor4BandConstants.multiplierValues[valorBanda4] ?? 1;
+
+    double valorNominal = double.parse('$banda1$banda2$banda3') * multiplicador;
+    double valorMinimo = valorNominal * (1 - toleranciaFija / 100);
+    double valorMaximo = valorNominal * (1 + toleranciaFija / 100);
+
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            children: [
+              _buildHeader(),
+              const SizedBox(height: 12),
+              _buildResistorDisplay(),
+              _buildCompactBandSelectors(),
+              const SizedBox(height: 12),
+              _buildResultDisplay(valorNominal, valorMinimo, valorMaximo),
+              const SizedBox(height: 12),
+              _buildInfoPanel(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeader() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Text(
+        '4 Bandas • Tolerancia ±${toleranciaFija.toStringAsFixed(0)}%',
+        style: const TextStyle(
+          fontSize: 11,
+          color: Colors.white70,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildResistorDisplay() {
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color.fromARGB(255, 41, 41, 41).withOpacity(0.05),
+      ),
+      padding: const EdgeInsets.all(8),
+      child: Column(
+        children: [
+          const Text(
+            'RESISTOR',
+            style: TextStyle(
+              fontSize: 9,
+              fontWeight: FontWeight.w600,
+              color: Colors.white54,
+              letterSpacing: 1,
+            ),
+          ),
+          const SizedBox(height: 8),
+          SizedBox(
+            height: 80,
+            child: Center(
+              child: CustomPaint(
+                size: const Size(280, 80),
+                painter: _ResistenciaPainter4Bandas(
+                  colorBanda1: Resistor4BandConstants.getColorFromValue(
+                    Resistor4BandConstants.digitValues[valorBanda1],
+                    isMultiplier: false,
+                  ),
+                  colorBanda2: Resistor4BandConstants.getColorFromValue(
+                    Resistor4BandConstants.digitValues[valorBanda2],
+                    isMultiplier: false,
+                  ),
+                  colorBanda3: Resistor4BandConstants.getColorFromValue(
+                    Resistor4BandConstants.digitValues[valorBanda3],
+                    isMultiplier: false,
+                  ),
+                  colorBanda4: Resistor4BandConstants.getColorFromValue(
+                    Resistor4BandConstants.multiplierValues[valorBanda4],
+                    isMultiplier: true,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCompactBandSelectors() {
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color.fromARGB(255, 41, 41, 41).withOpacity(0.05),                                                                                                                 
+      ),
+      padding: const EdgeInsets.all(10),
+      child: Column(
+        children: [
+          const Text(
+            'BANDAS',
+            style: TextStyle(
+              fontSize: 9,
+              fontWeight: FontWeight.w600,
+              color: Colors.white54,
+              letterSpacing: 1,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Column(
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildCompactSelector(
+                      '1',
+                      valorBanda1,
+                      Resistor4BandConstants.digitValues.keys.toList(),
+                      (v) => setState(() => valorBanda1 = v),
+                      false,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: _buildCompactSelector(
+                      '2',
+                      valorBanda2,
+                      Resistor4BandConstants.digitValues.keys.toList(),
+                      (v) => setState(() => valorBanda2 = v),
+                      false,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildCompactSelector(
+                      '3',
+                      valorBanda3,
+                      Resistor4BandConstants.digitValues.keys.toList(),
+                      (v) => setState(() => valorBanda3 = v),
+                      false,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: _buildCompactSelector(
+                      '×',
+                      valorBanda4,
+                      Resistor4BandConstants.multiplierValues.keys.toList(),
+                      (v) => setState(() => valorBanda4 = v),
+                      true,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCompactSelector(
+    String label,
+    String value,
+    List<String> values,
+    ValueChanged<String> onChanged,
+    bool isMultiplier,
+  ) {
+    // Obtener el color basado en el valor actual
+    dynamic currentVal;
+    if (isMultiplier) {
+      currentVal = Resistor4BandConstants.multiplierValues[value];
+    } else {
+      currentVal = Resistor4BandConstants.digitValues[value];
+    }
+    Color bgColor = Resistor4BandConstants.getColorFromValue(
+      currentVal,
+      isMultiplier: isMultiplier,
+    );
+
+    return StatefulBuilder(
+      key: ValueKey('$label-$value'),
+      builder: (context, setStateLocal) {
+        return Container(
+          decoration: BoxDecoration(
+            color: bgColor.withOpacity(0.3),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: bgColor.withOpacity(0.5), width: 0.8),
+          ),
+          child: DropdownButton<String>(
+            value: value,
+            onChanged: (v) {
+              onChanged(v!);
+              setStateLocal(() {});
+            },
+            dropdownColor: Colors.grey[850],
+            underline: const SizedBox(),
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+            isExpanded: true,
+            icon: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  label,
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const Icon(Icons.arrow_drop_down, color: Colors.white70, size: 16),
+              ],
+            ),
+            iconSize: 0,
+            style: const TextStyle(color: Colors.white, fontSize: 11),
+            items: values.map((key) {
+              dynamic itemVal;
+              if (isMultiplier) {
+                itemVal = Resistor4BandConstants.multiplierValues[key];
+              } else {
+                itemVal = Resistor4BandConstants.digitValues[key];
+              }
+              Color itemColor = Resistor4BandConstants.getColorFromValue(
+                itemVal,
+                isMultiplier: isMultiplier,
+              );
+
+              return DropdownMenuItem(
+                value: key,
+                child: Row(
+                  children: [
+                    Container(
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: itemColor,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        key,
+                        style: const TextStyle(fontSize: 10),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }).toList(),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildResultDisplay(double nominal, double min, double max) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Colors.blue[600]!, Colors.purple[600]!],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.blue.withOpacity(0.2),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(12),
+      child: Column(
+        children: [
+          const Text(
+            'VALOR',
+            style: TextStyle(
+              fontSize: 9,
+              fontWeight: FontWeight.w600,
+              color: Colors.white70,
+              letterSpacing: 1,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            Resistor4BandConstants.formatResistance(nominal),
+            style: const TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
+              letterSpacing: -0.5,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _buildCompactChip('Min', Resistor4BandConstants.formatResistance(min)),
+              _buildCompactChip('Max', Resistor4BandConstants.formatResistance(max)),
+              _buildCompactChip('±', '${toleranciaFija.toStringAsFixed(0)}%'),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCompactChip(String label, String value) {
+    return Column(
+      children: [
+        Text(label, style: const TextStyle(fontSize: 9, color: Colors.white70)),
+        const SizedBox(height: 2),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.2),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Text(
+            value,
+            style: const TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+              color: Colors.white,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildInfoPanel() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white.withOpacity(0.1)),
+      ),
+      padding: const EdgeInsets.all(10),
+      child: Row(
+        children: [
+          Icon(Icons.info_outline, size: 12, color: Colors.white54),
+          const SizedBox(width: 6),
+          const Expanded(
+            child: Text(
+              '4 bandas: 3 dígitos + multiplicador • Tolerancia 20%',
+              style: TextStyle(fontSize: 9, color: Colors.white70),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// Painter compacto para 4 bandas
+class _ResistenciaPainter4Bandas extends CustomPainter {
   final Color colorBanda1;
   final Color colorBanda2;
   final Color colorBanda3;
   final Color colorBanda4;
 
-  _ResistenciaPainter({
+  const _ResistenciaPainter4Bandas({
     required this.colorBanda1,
     required this.colorBanda2,
     required this.colorBanda3,
@@ -489,86 +503,48 @@ class _ResistenciaPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..style = PaintingStyle.fill
-      ..strokeWidth = 2;
+    final paint = Paint()..style = PaintingStyle.fill;
 
-    // Draw leads
-    paint.color = Colors.grey;
-    canvas.drawRect(
-      Rect.fromLTWH(0, size.height * 0.4, size.width * 0.15, size.height * 0.2),
-      paint,
-    );
-    canvas.drawRect(
+    paint.color = const Color(0xFFE8D5B5);
+    final bodyRect = RRect.fromRectAndRadius(
       Rect.fromLTWH(
-        size.width * 0.85,
-        size.height * 0.4,
-        size.width * 0.15,
-        size.height * 0.2,
+        size.width * 0.1,
+        size.height * 0.15,
+        size.width * 0.8,
+        size.height * 0.7,
       ),
-      paint,
+      const Radius.circular(6),
     );
+    canvas.drawRRect(bodyRect, paint);
 
-    // Draw resistor body
-    paint.color = Colors.brown[300]!;
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(
-        Rect.fromLTWH(
-          size.width * 0.15,
-          size.height * 0.2,
-          size.width * 0.7,
-          size.height * 0.6,
-        ),
-        const Radius.circular(10),
-      ),
-      paint,
-    );
+    paint.color = Colors.black.withOpacity(0.08);
+    canvas.drawRRect(bodyRect.shift(const Offset(1, 1)), paint);
 
-    // Draw bands
-    final bandWidth = size.width * 0.04;
-    final bandHeight = size.height * 0.6;
-    final startX = size.width * 0.25;
+    final bandWidth = size.width * 0.045;
+    final bandHeight = size.height * 0.65;
+    double startX = size.width * 0.18;
 
-    // Band 1
     paint.color = colorBanda1;
     canvas.drawRect(
-      Rect.fromLTWH(startX, size.height * 0.2, bandWidth, bandHeight),
+      Rect.fromLTWH(startX, size.height * 0.175, bandWidth, bandHeight),
       paint,
     );
 
-    // Band 2
     paint.color = colorBanda2;
     canvas.drawRect(
-      Rect.fromLTWH(
-        startX + bandWidth * 2,
-        size.height * 0.2,
-        bandWidth,
-        bandHeight,
-      ),
+      Rect.fromLTWH(startX + bandWidth * 1.6, size.height * 0.175, bandWidth, bandHeight),
       paint,
     );
 
-    // Band 3
     paint.color = colorBanda3;
     canvas.drawRect(
-      Rect.fromLTWH(
-        startX + bandWidth * 4,
-        size.height * 0.2,
-        bandWidth,
-        bandHeight,
-      ),
+      Rect.fromLTWH(startX + bandWidth * 3.2, size.height * 0.175, bandWidth, bandHeight),
       paint,
     );
 
-    // Band 4 (multiplier/tolerance)
     paint.color = colorBanda4;
     canvas.drawRect(
-      Rect.fromLTWH(
-        startX + bandWidth * 6,
-        size.height * 0.2,
-        bandWidth,
-        bandHeight,
-      ),
+      Rect.fromLTWH(startX + bandWidth * 4.8, size.height * 0.175, bandWidth, bandHeight),
       paint,
     );
   }
