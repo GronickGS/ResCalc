@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-// Constantes centralizadas
 class ResistorConstants {
   static const double defaultTolerance3Band = 20.0;
 
@@ -126,7 +125,7 @@ class BandaTresPageState extends State<BandaTresPage> {
     double valorMaximo = valorNominal * (1 + toleranciaFija / 100);
 
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 41, 41, 41),
+      backgroundColor: Colors.transparent,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(12),
@@ -135,6 +134,7 @@ class BandaTresPageState extends State<BandaTresPage> {
               _buildHeader(),
               const SizedBox(height: 12),
               _buildResistorDisplay(),
+              const SizedBox(height: 12),
               _buildCompactBandSelectors(),
               const SizedBox(height: 12),
               _buildResultDisplay(valorNominal, valorMinimo, valorMaximo),
@@ -168,8 +168,9 @@ class BandaTresPageState extends State<BandaTresPage> {
   Widget _buildResistorDisplay() {
     return Container(
       decoration: BoxDecoration(
-        color: const Color.fromARGB(255, 41, 41, 41).withOpacity(0.05),
-        
+        color: Colors.white.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white.withOpacity(0.1)),
       ),
       padding: const EdgeInsets.all(8),
       child: Column(
@@ -214,8 +215,9 @@ class BandaTresPageState extends State<BandaTresPage> {
   Widget _buildCompactBandSelectors() {
     return Container(
       decoration: BoxDecoration(
-        color: Color.fromARGB(255, 41, 41, 41),
-        
+        color: Colors.white.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white.withOpacity(0.1)),
       ),
       padding: const EdgeInsets.all(10),
       child: Column(
@@ -316,7 +318,11 @@ class BandaTresPageState extends State<BandaTresPage> {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                const Icon(Icons.arrow_drop_down, color: Colors.white70, size: 16),
+                const Icon(
+                  Icons.arrow_drop_down,
+                  color: Colors.white70,
+                  size: 16,
+                ),
               ],
             ),
             iconSize: 0,
@@ -450,7 +456,7 @@ class BandaTresPageState extends State<BandaTresPage> {
       padding: const EdgeInsets.all(10),
       child: Row(
         children: [
-          Icon(Icons.info_outline, size: 12, color: Colors.white54),
+          const Icon(Icons.info_outline, size: 12, color: Colors.white54),
           const SizedBox(width: 6),
           const Expanded(
             child: Text(
@@ -507,13 +513,23 @@ class _ResistenciaPainter3Bandas extends CustomPainter {
 
     paint.color = colorBanda2;
     canvas.drawRect(
-      Rect.fromLTWH(startX + bandWidth * 1.5, size.height * 0.175, bandWidth, bandHeight),
+      Rect.fromLTWH(
+        startX + bandWidth * 1.5,
+        size.height * 0.175,
+        bandWidth,
+        bandHeight,
+      ),
       paint,
     );
 
     paint.color = colorBanda3;
     canvas.drawRect(
-      Rect.fromLTWH(startX + bandWidth * 3.0, size.height * 0.175, bandWidth, bandHeight),
+      Rect.fromLTWH(
+        startX + bandWidth * 3.0,
+        size.height * 0.175,
+        bandWidth,
+        bandHeight,
+      ),
       paint,
     );
   }

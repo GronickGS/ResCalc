@@ -8,20 +8,28 @@ class LeyOhmPage extends StatefulWidget {
 }
 
 class _LeyOhmPageState extends State<LeyOhmPage> {
-  int _selectedTab = 0; // 0: Teoría, 1: Ejemplos, 2: Ejercicios
+  int _selectedTab = 0;
 
-  // Variables para los ejercicios
-  String ejercicioTipo = 'V'; // V, I, R
+  String ejercicioTipo = 'V';
   final TextEditingController valor1Controller = TextEditingController();
   final TextEditingController valor2Controller = TextEditingController();
   String resultadoEjercicio = '';
 
-  // Variables para la calculadora interactiva
-  String calcularModo = 'V'; // V, I, R
+  String calcularModo = 'V';
   final TextEditingController vController = TextEditingController();
   final TextEditingController iController = TextEditingController();
   final TextEditingController rController = TextEditingController();
   String calculoResultado = '';
+
+  @override
+  void dispose() {
+    valor1Controller.dispose();
+    valor2Controller.dispose();
+    vController.dispose();
+    iController.dispose();
+    rController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -58,7 +66,6 @@ class _LeyOhmPageState extends State<LeyOhmPage> {
       ),
       child: Column(
         children: [
-        
           const Text(
             'Ley de Ohm',
             style: TextStyle(
@@ -162,7 +169,6 @@ class _LeyOhmPageState extends State<LeyOhmPage> {
     }
   }
 
-  // ==================== TEORÍA ====================
   Widget _buildTeoria() {
     return Column(
       children: [
@@ -173,16 +179,12 @@ class _LeyOhmPageState extends State<LeyOhmPage> {
         const SizedBox(height: 12),
         _buildFormulaCard(),
         const SizedBox(height: 12),
-        _buildTeoriaCard(
-          'Triángulo de la Ley de Ohm',
-          Icons.change_circle, // ← corregido
-          [
-            'El triángulo es una forma sencilla de recordar las fórmulas:',
-            '• V = I × R  (Voltaje = Corriente × Resistencia)',
-            '• I = V / R  (Corriente = Voltaje ÷ Resistencia)',
-            '• R = V / I  (Resistencia = Voltaje ÷ Corriente)',
-          ],
-        ),
+        _buildTeoriaCard('Triángulo de la Ley de Ohm', Icons.change_circle, [
+          'El triángulo es una forma sencilla de recordar las fórmulas:',
+          '• V = I × R  (Voltaje = Corriente × Resistencia)',
+          '• I = V / R  (Corriente = Voltaje ÷ Resistencia)',
+          '• R = V / I  (Resistencia = Voltaje ÷ Corriente)',
+        ]),
         const SizedBox(height: 12),
         _buildTeoriaCard('Aplicaciones prácticas', Icons.build, [
           '• Cálculo de resistencias en circuitos electrónicos',
@@ -196,11 +198,7 @@ class _LeyOhmPageState extends State<LeyOhmPage> {
     );
   }
 
-  Widget _buildTeoriaCard(
-    String title,
-    IconData icon, // ← cambiar el tipo de icono
-    List<String> content,
-  ) {
+  Widget _buildTeoriaCard(String title, IconData icon, List<String> content) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.05),
@@ -348,7 +346,6 @@ class _LeyOhmPageState extends State<LeyOhmPage> {
             style: TextStyle(fontSize: 11, color: Colors.white54),
           ),
           const SizedBox(height: 12),
-          // Selector de qué calcular
           Row(
             children: [
               _buildModoButton('Calcular V', 'V'),
@@ -359,7 +356,6 @@ class _LeyOhmPageState extends State<LeyOhmPage> {
             ],
           ),
           const SizedBox(height: 12),
-          // Campos según el modo
           if (calcularModo == 'V') ...[
             _buildInputField('Corriente (I) - Amperios', iController),
             const SizedBox(height: 8),
@@ -378,7 +374,7 @@ class _LeyOhmPageState extends State<LeyOhmPage> {
             onPressed: _calcular,
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.blue[600],
-              foregroundColor: Colors.white, // ← Agregar esto (color del texto)
+              foregroundColor: Colors.white,
               minimumSize: const Size(double.infinity, 40),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -391,13 +387,27 @@ class _LeyOhmPageState extends State<LeyOhmPage> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.green.withOpacity(0.2),
+                color: calculoResultado.contains('Error')
+                    ? Colors.red.withOpacity(0.2)
+                    : Colors.green.withOpacity(0.2),
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: Colors.green.withOpacity(0.5)),
+                border: Border.all(
+                  color: calculoResultado.contains('Error')
+                      ? Colors.red.withOpacity(0.5)
+                      : Colors.green.withOpacity(0.5),
+                ),
               ),
               child: Row(
                 children: [
-                  Icon(Icons.check_circle, size: 20, color: Colors.green[400]),
+                  Icon(
+                    calculoResultado.contains('Error')
+                        ? Icons.error_outline
+                        : Icons.check_circle,
+                    size: 20,
+                    color: calculoResultado.contains('Error')
+                        ? Colors.red[400]
+                        : Colors.green[400],
+                  ),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
@@ -453,7 +463,7 @@ class _LeyOhmPageState extends State<LeyOhmPage> {
   Widget _buildInputField(String label, TextEditingController controller) {
     return TextField(
       controller: controller,
-      keyboardType: TextInputType.number,
+      keyboardType: const TextInputType.numberWithOptions(decimal: true),
       style: const TextStyle(color: Colors.white, fontSize: 13),
       decoration: InputDecoration(
         labelText: label,
@@ -488,12 +498,20 @@ class _LeyOhmPageState extends State<LeyOhmPage> {
         } else if (calcularModo == 'I') {
           double v = double.parse(vController.text);
           double r = double.parse(rController.text);
+          if (r == 0) {
+            calculoResultado = 'Error: La resistencia no puede ser 0';
+            return;
+          }
           double i = v / r;
           calculoResultado =
               'I = V / R = $v V / $r Ω = ${i.toStringAsFixed(2)} A';
         } else {
           double v = double.parse(vController.text);
           double i = double.parse(iController.text);
+          if (i == 0) {
+            calculoResultado = 'Error: La corriente no puede ser 0';
+            return;
+          }
           double r = v / i;
           calculoResultado =
               'R = V / I = $v V / $i A = ${r.toStringAsFixed(2)} Ω';
@@ -504,7 +522,6 @@ class _LeyOhmPageState extends State<LeyOhmPage> {
     });
   }
 
-  // ==================== EJEMPLOS ====================
   Widget _buildEjemplos() {
     return Column(
       children: [
@@ -600,7 +617,6 @@ class _LeyOhmPageState extends State<LeyOhmPage> {
     );
   }
 
-  // ==================== EJERCICIOS ====================
   Widget _buildEjercicios() {
     return Column(
       children: [
@@ -623,7 +639,6 @@ class _LeyOhmPageState extends State<LeyOhmPage> {
                 ),
               ),
               const SizedBox(height: 12),
-              // Selector de tipo de ejercicio
               Row(
                 children: [
                   _buildEjercicioModo('Calcular Voltaje', 'V'),
@@ -634,7 +649,6 @@ class _LeyOhmPageState extends State<LeyOhmPage> {
                 ],
               ),
               const SizedBox(height: 16),
-              // Campos según el tipo
               if (ejercicioTipo == 'V') ...[
                 _buildEjercicioInput('Corriente (A):', valor1Controller),
                 const SizedBox(height: 8),
@@ -665,8 +679,7 @@ class _LeyOhmPageState extends State<LeyOhmPage> {
                 onPressed: _resolverEjercicio,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.purple[600],
-                  foregroundColor:
-                      Colors.white, // ← Agregar esto (color del texto)
+                  foregroundColor: Colors.white,
                   minimumSize: const Size(double.infinity, 40),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -745,7 +758,7 @@ class _LeyOhmPageState extends State<LeyOhmPage> {
   Widget _buildEjercicioInput(String label, TextEditingController controller) {
     return TextField(
       controller: controller,
-      keyboardType: TextInputType.number,
+      keyboardType: const TextInputType.numberWithOptions(decimal: true),
       style: const TextStyle(color: Colors.white, fontSize: 13),
       decoration: InputDecoration(
         labelText: label,
@@ -779,10 +792,18 @@ class _LeyOhmPageState extends State<LeyOhmPage> {
           resultadoEjercicio =
               '✅ Resultado: V = $val1 A × $val2 Ω = ${v.toStringAsFixed(2)} V';
         } else if (ejercicioTipo == 'I') {
+          if (val2 == 0) {
+            resultadoEjercicio = '❌ Error: La resistencia no puede ser 0';
+            return;
+          }
           double i = val1 / val2;
           resultadoEjercicio =
               '✅ Resultado: I = $val1 V / $val2 Ω = ${i.toStringAsFixed(2)} A';
         } else {
+          if (val2 == 0) {
+            resultadoEjercicio = '❌ Error: La corriente no puede ser 0';
+            return;
+          }
           double r = val1 / val2;
           resultadoEjercicio =
               '✅ Resultado: R = $val1 V / $val2 A = ${r.toStringAsFixed(2)} Ω';

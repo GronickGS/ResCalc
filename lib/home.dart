@@ -31,7 +31,7 @@ class _HomePageState extends State<HomePage> {
         flexibleSpace: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
-              colors: [Color.fromARGB(255, 160, 39, 39), Color.fromARGB(255, 161, 13, 13)],
+              colors: [Color.fromARGB(255, 226, 5, 5), Color.fromARGB(255, 217, 18, 18)],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),

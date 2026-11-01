@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../bandas_3.dart';
 import '../bandas_4.dart';
 import '../bandas_5.dart';
-import '../ley_ohm_page .dart'; // ← Importar Ley de Ohm
+import '../ley_ohm_page.dart';
 
 class RoutesPage extends StatelessWidget {
   final int index;
@@ -11,11 +11,11 @@ class RoutesPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> myList = [
+    final List<Widget> myList = [
       const BandaTresPage(),
       const BandaCuatroPage(),
       const BandaCincoPage(),
-      const LeyOhmPage(), // ← Agregar Ley de Ohm
+      const LeyOhmPage(),
     ];
     return myList[index];
   }
